@@ -18,7 +18,7 @@ object NeteaseApi {
                 val obj = el.asJsonObject
                 val artists = obj["artists"].asJsonArray.joinToString("/") { it.asJsonObject["name"].asString }
                 val album = obj["album"].asJsonObject
-                Song(obj["id"].asLong(), obj["name"].asString, artists, album["name"].asString, album["picUrl"]?.asString ?: "", obj["duration"].asLong)
+                Song(obj["id"].asLong(), obj["name"].asString, artists, album["name"].asString, album["picUrl"]?.asString ?: "", obj["duration"].asLong())
             }
         }.getOrDefault(emptyList())
     }
