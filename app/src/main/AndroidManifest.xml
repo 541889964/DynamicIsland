@@ -18,7 +18,7 @@
     <application
         android:allowBackup="true"
         android:label="灵动岛"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:usesCleartextTraffic="true"
         android:hardwareAccelerated="true"
         android:requestLegacyExternalStorage="true"
