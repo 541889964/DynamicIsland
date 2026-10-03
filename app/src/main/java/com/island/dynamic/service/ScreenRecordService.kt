@@ -24,7 +24,7 @@ class ScreenRecordService : Service() {
         projection = mgr.getMediaProjection(resultCode, data)
         val file = File(getExternalFilesDir(null), "island_${System.currentTimeMillis()}.mp4")
         recorder = MediaRecorder(this).apply {
-            setVideoSource(MediaRecorder.VideoSource.SCREEN)
+            setVideoSource(3)
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
