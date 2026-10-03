@@ -9,14 +9,11 @@ android {
         applicationId = "com.island.dynamic"
         minSdk = 26
         targetSdk = 34
-        versionCode = 7
-        versionName = "7.0.0"
+        versionCode = 9
+        versionName = "9.0.0"
     }
     buildTypes {
-        release {
-            isMinifyEnabled = false
-            signingConfig = signingConfigs.getByName("debug")
-        }
+        release { isMinifyEnabled = false; signingConfig = signingConfigs.getByName("debug") }
     }
     buildFeatures { compose = true }
     composeOptions { kotlinCompilerExtensionVersion = "1.5.5" }

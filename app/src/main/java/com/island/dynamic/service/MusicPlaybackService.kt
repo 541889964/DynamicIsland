@@ -22,10 +22,8 @@ class MusicPlaybackService : Service() {
             override fun onPlaybackStateChanged(state: Int) { if (state == Player.STATE_ENDED) onSongEnded() }
             override fun onIsPlayingChanged(isPlaying: Boolean) {
                 MusicStateHolder.isPlaying = isPlaying
-                if (isPlaying) {
-                    autoSwitchJob?.cancel()
-                    if (IslandStateHolder.appMode == AppMode.MUSIC)
-                        IslandStateHolder.mode = IslandMode.MUSIC_CONTROL
+                if (isPlaying) { autoSwitchJob?.cancel()
+                    if (IslandStateHolder.appMode == AppMode.MUSIC) IslandStateHolder.mode = IslandMode.MUSIC_CONTROL
                 } else scheduleAutoSwitch()
             }
         })
@@ -38,18 +36,14 @@ class MusicPlaybackService : Service() {
         autoSwitchJob?.cancel()
         autoSwitchJob = scope.launch {
             delay(SettingsStore.autoSwitchSec * 1000L)
-            if (!MusicStateHolder.isPlaying) {
-                IslandStateHolder.appMode = AppMode.LIFE; IslandStateHolder.mode = IslandMode.IDLE
-            }
+            if (!MusicStateHolder.isPlaying) { IslandStateHolder.appMode = AppMode.LIFE; IslandStateHolder.mode = IslandMode.IDLE }
         }
     }
-    fun playSong(song: Song) {
-        scope.launch {
-            val url = if (song.isLocal) song.playUrl else NeteaseApi.getSongUrl(song.id).ifBlank { return@launch }
-            MusicStateHolder.currentSong = song.copy(playUrl = url)
-            player.setMediaItem(MediaItem.fromUri(url)); player.prepare(); player.play()
-        }
-    }
+    fun playSong(song: Song) { scope.launch {
+        val url = if (song.isLocal) song.playUrl else NeteaseApi.getSongUrl(song.id).ifBlank { return@launch }
+        MusicStateHolder.currentSong = song.copy(playUrl = url)
+        player.setMediaItem(MediaItem.fromUri(url)); player.prepare(); player.play()
+    } }
     fun togglePlayPause() { if (player.isPlaying) player.pause() else player.play() }
     fun playNext() { MusicStateHolder.advanceIndex(); MusicStateHolder.currentSong?.let { playSong(it) } }
     fun playPrev() {
@@ -65,30 +59,23 @@ class MusicPlaybackService : Service() {
             PlayMode.SEQUENTIAL -> PlayMode.LIST_LOOP
             PlayMode.LIST_LOOP -> PlayMode.SINGLE_LOOP
             PlayMode.SINGLE_LOOP -> PlayMode.SHUFFLE
-            PlayMode.SHUFFLE -> PlayMode.SEQUENTIAL
-        }
+            PlayMode.SHUFFLE -> PlayMode.SEQUENTIAL }
         player.repeatMode = when (MusicStateHolder.playMode) {
             PlayMode.SINGLE_LOOP -> Player.REPEAT_MODE_ONE
             PlayMode.LIST_LOOP -> Player.REPEAT_MODE_ALL
-            else -> Player.REPEAT_MODE_OFF
-        }
+            else -> Player.REPEAT_MODE_OFF }
         player.shuffleModeEnabled = MusicStateHolder.playMode == PlayMode.SHUFFLE
     }
     private fun onSongEnded() {
         when (MusicStateHolder.playMode) {
             PlayMode.SINGLE_LOOP -> { player.seekTo(0); player.play() }
-            else -> playNext()
-        }
-    }
+            else -> playNext() } }
     private fun buildNotification(): Notification {
         val chId = "island_music"
         getSystemService(NotificationManager::class.java)
             .createNotificationChannel(NotificationChannel(chId, "音乐播放", NotificationManager.IMPORTANCE_LOW))
         return Notification.Builder(this, chId)
-            .setSmallIcon(android.R.drawable.ic_media_play).setContentTitle("灵动岛音乐").build()
-    }
-    override fun onDestroy() {
-        autoSwitchJob?.cancel(); MusicController.unbind(); scope.cancel(); player.release(); super.onDestroy()
-    }
+            .setSmallIcon(android.R.drawable.ic_media_play).setContentTitle("灵动岛音乐").build() }
+    override fun onDestroy() { autoSwitchJob?.cancel(); MusicController.unbind(); scope.cancel(); player.release(); super.onDestroy() }
     override fun onBind(intent: Intent?): IBinder? = null
 }

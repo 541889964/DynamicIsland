@@ -20,8 +20,7 @@ object MusicController {
             MusicStateHolder.isSearching = false
             if (results.isNotEmpty()) {
                 MusicStateHolder.playQueue.clear(); MusicStateHolder.playQueue.addAll(results)
-                MusicStateHolder.currentIndex = 0
-                MusicStateHolder.currentSong = results[0]
+                MusicStateHolder.currentIndex = 0; MusicStateHolder.currentSong = results[0]
                 service?.playSong(results[0])
             }
             onResult(results)
@@ -29,8 +28,7 @@ object MusicController {
     }
     fun scanLocalMusic(context: Context, onResult: (List<Song>) -> Unit = {}) {
         scope.launch {
-            MusicStateHolder.isScanningLocal = true
-            MusicStateHolder.scanProgress = 0f
+            MusicStateHolder.isScanningLocal = true; MusicStateHolder.scanProgress = 0f
             val songs = LocalMusicScanner.scan(context)
             MusicStateHolder.localMusic.clear(); MusicStateHolder.localMusic.addAll(songs)
             MusicStateHolder.isScanningLocal = false

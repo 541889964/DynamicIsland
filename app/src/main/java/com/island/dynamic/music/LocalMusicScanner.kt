@@ -12,8 +12,8 @@ object LocalMusicScanner {
             MediaStore.Audio.Media.ARTIST, MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DURATION, MediaStore.Audio.Media.DATA)
         val selection = "${MediaStore.Audio.Media.IS_MUSIC} != 0 AND ${MediaStore.Audio.Media.DURATION} > 10000"
-        context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-            projection, selection, null, "${MediaStore.Audio.Media.TITLE} ASC")?.use { c ->
+        context.contentResolver.query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI, projection, selection, null,
+            "${MediaStore.Audio.Media.TITLE} ASC")?.use { c ->
             val total = c.count.coerceAtLeast(1); var i = 0
             val idC = c.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)
             val tiC = c.getColumnIndexOrThrow(MediaStore.Audio.Media.TITLE)
@@ -25,10 +25,8 @@ object LocalMusicScanner {
                 val title = c.getString(tiC) ?: continue
                 val artist = c.getString(arC) ?: "未知艺术家"
                 val path = c.getString(daC) ?: continue
-                songs.add(Song(c.getLong(idC), title,
-                    if (artist == "<unknown>") "未知艺术家" else artist,
-                    c.getString(alC) ?: "", duration = c.getLong(duC),
-                    playUrl = "file://$path", isLocal = true))
+                songs.add(Song(c.getLong(idC), title, if (artist == "<unknown>") "未知艺术家" else artist,
+                    c.getString(alC) ?: "", duration = c.getLong(duC), playUrl = "file://$path", isLocal = true))
                 i++; if (i % 10 == 0) MusicStateHolder.scanProgress = i.toFloat() / total
             }
         }

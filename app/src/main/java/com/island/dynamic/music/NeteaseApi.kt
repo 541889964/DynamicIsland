@@ -18,15 +18,13 @@ object NeteaseApi {
                 val obj = el.asJsonObject
                 val artists = obj["artists"].asJsonArray.joinToString("/") { it.asJsonObject["name"].asString }
                 val album = obj["album"].asJsonObject
-                Song(obj["id"].asLong(), obj["name"].asString, artists,
-                    album["name"].asString, album["picUrl"]?.asString ?: "", obj["duration"].asLong)
+                Song(obj["id"].asLong(), obj["name"].asString, artists, album["name"].asString, album["picUrl"]?.asString ?: "", obj["duration"].asLong)
             }
         }.getOrDefault(emptyList())
     }
     suspend fun getSongUrl(id: Long): String = withContext(Dispatchers.IO) {
         runCatching {
-            val body = client.newCall(Request.Builder().url("$BASE/song/url/v1?id=$id&level=standard").build())
-                .execute().body?.string() ?: return@runCatching ""
+            val body = client.newCall(Request.Builder().url("$BASE/song/url/v1?id=$id&level=standard").build()).execute().body?.string() ?: return@runCatching ""
             JsonParser.parseString(body).asJsonObject["data"].asJsonArray[0].asJsonObject["url"]?.asString ?: ""
         }.getOrDefault("")
     }

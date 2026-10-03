@@ -29,8 +29,7 @@ class ScreenRecordService : Service() {
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setVideoEncoder(MediaRecorder.VideoEncoder.H264)
             setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setOutputFile(file.absolutePath); prepare()
-        }
+            setOutputFile(file.absolutePath); prepare() }
         val m = resources.displayMetrics
         virtualDisplay = projection?.createVirtualDisplay("IslandRec",
             m.widthPixels, m.heightPixels, m.densityDpi,
