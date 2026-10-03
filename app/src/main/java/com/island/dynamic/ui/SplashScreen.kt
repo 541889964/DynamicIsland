@@ -1,7 +1,6 @@
 package com.island.dynamic.ui
 
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,17 +12,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.island.dynamic.theme.Tokens
-import kotlin.math.cos
-import kotlin.math.sin
 
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {
@@ -64,11 +59,12 @@ fun SplashScreen(onFinish: () -> Unit) {
             },
         contentAlignment = Alignment.Center
     ) {
-        ParticleField(t)
-        RingWave(r1, 260f, 3f, Tokens.NeonGreen)
-        RingWave(r2, 340f, 2f, Tokens.NeonBlue)
-        RingWave(r3, 420f, 1.5f, Tokens.NeonPurple)
+        // 三层扩散环
+        WaveRing(r1, 260.dp, 3.dp, Tokens.NeonGreen)
+        WaveRing(r2, 340.dp, 2.dp, Tokens.NeonBlue)
+        WaveRing(r3, 420.dp, 1.5.dp, Tokens.NeonPurple)
 
+        // 中心爆发点
         Box(Modifier.graphicsLayer {
             val s = if (burstScale > 0f) {
                 val b = burstScale
@@ -79,6 +75,7 @@ fun SplashScreen(onFinish: () -> Unit) {
             alpha = if (burstScale > 0.8f) 1f - (burstScale - 0.8f) * 5f else 1f
         }.size(8.dp).clip(CircleShape).background(Color.White))
 
+        // 爆发光晕
         if (burstScale in 0.01f..0.95f) {
             Box(Modifier.graphicsLayer {
                 val b = burstScale
@@ -91,6 +88,7 @@ fun SplashScreen(onFinish: () -> Unit) {
                     listOf(Tokens.NeonGreen, Color.Transparent))))
         }
 
+        // Logo
         Box(Modifier.graphicsLayer {
             scaleX = logoScale
             scaleY = logoScale
@@ -124,6 +122,7 @@ fun SplashScreen(onFinish: () -> Unit) {
                 .clip(CircleShape).background(Tokens.NeonGreen))
         }
 
+        // 文字
         Column(
             Modifier.align(Alignment.Center).offset(y = 140.dp)
                 .graphicsLayer { alpha = textIn },
@@ -140,47 +139,16 @@ fun SplashScreen(onFinish: () -> Unit) {
     }
 }
 
+@Composable
+private fun WaveRing(progress: Float, maxSize: androidx.compose.ui.unit.Dp,
+                     border: androidx.compose.ui.unit.Dp, color: Color) {
+    if (progress <= 0f || progress >= 1f) return
+    val size = maxSize * progress
+    val alpha = (1f - progress) * 0.7f
+    Box(Modifier.size(size).clip(CircleShape)
+        .background(color.copy(alpha = alpha * 0.15f))
+        .then(Modifier))
+}
+
 private fun stage(t: Float, s: Float, e: Float): Float =
     ((t - s) / (e - s)).coerceIn(0f, 1f)
-
-@Composable
-private fun RingWave(progress: Float, maxRadius: Float, strokeWidth: Float, color: Color) {
-    if (progress <= 0f || progress >= 1f) return
-    Canvas(Modifier.fillMaxSize()) {
-        val r = maxRadius * (1f - (1f - progress) * (1f - progress) * (1f - progress))
-        drawCircle(
-            color = color.copy(alpha = (1f - progress) * 0.7f),
-            radius = r,
-            style = Stroke(width = strokeWidth * (1f - progress * 0.5f))
-        )
-    }
-}
-
-@Composable
-private fun ParticleField(progress: Float) {
-    val particles = remember {
-        List(30) {
-            floatArrayOf(
-                (-1f..1f).random(),
-                (-1f..1f).random(),
-                (0.3f..1.2f).random(),
-                (1f..3.5f).random(),
-                (0.2f..0.7f).random()
-            )
-        }
-    }
-    Canvas(Modifier.fillMaxSize()) {
-        val cx = size.width / 2
-        val cy = size.height / 2
-        val maxR = size.minDimension * 0.45f
-        particles.forEach { p ->
-            val angle = progress * p[2] * 6.28f + p[0] * 3f
-            val r = maxR * (0.3f + kotlin.math.abs(p[1]) * 0.7f)
-            drawCircle(
-                color = Color.White.copy(alpha = p[4] * (1f - progress * 0.3f)),
-                radius = p[3],
-                center = Offset(cx + cos(angle) * r, cy + sin(angle) * r)
-            )
-        }
-    }
-}
